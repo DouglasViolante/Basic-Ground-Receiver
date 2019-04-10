@@ -8,12 +8,9 @@ Created on Fri Mar 29 20:58:17 2019
 import serial as com
 
 
-
-def altimeterPlotting():
+def altimeterPlotting():		  # Plota valores em um grafo em tempo real
 	
 	print("\n Para Implementar")
-    
-
     
 def altimeterFileBackup():                # Salva os dados em um arquivo externo
     
@@ -54,7 +51,6 @@ def main():
 			if(value_comport.isdigit()):    # Checa se o conteúdo da string contém apenas números
 				
 				value  = int(value_comport)		# Converte o conteúdo de value_comport para Int
-				
 				print(value)
 				
 				if(value <= 1):			# Condição para testes
