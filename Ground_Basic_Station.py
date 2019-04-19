@@ -2,18 +2,20 @@
 """
 Created on Fri Mar 29 20:58:17 2019
 
-@author: Douglas Violante
+@author: Douglas Violante 
 """
 
 import serial as com
+import matplotlib.pyplot as plt
 import threading
 
 
 # Plota em tempo real a altitude do foguete
-def altimeterPloter(data):
-	
-    print("\n Para implementar!")    
+def altimeterPloter(x,data):
     
+    plt.plot(x,data)
+    plt.pause(0.05)
+
 
 # Salva os dados em um arquivo externo, a cada leitura	
 def dataSafeGuard(receivedDataFloat):     
@@ -60,6 +62,11 @@ def main():
 
     receivedDataFloat = []
     expectedLenghtDataReceived = 2
+    x = 0
+
+
+    plt.axis([0, 10, 0, 1])
+
 
     print("\n Equipe ROCKET - Ground Basic Station Software V2.0")
     input("\n ----------- Pressione Enter para iniciar ----------- \n")
@@ -81,9 +88,17 @@ def main():
                 print(receivedRawData)
                 receivedDataFloat = list(map(float, receivedRawData))
     
-            
+            x = x + 1
+
             safeguard = threading.Thread(target = dataSafeGuard, args = (receivedDataFloat,))
             safeguard.start()
+
+            altimeter = threading.Thread(target = altimeterPloter, args = (receivedDataFloat[0], x))
+            altimeter.start()
+
+            plt.show()
+
+            
             
             
     except KeyboardInterrupt:
