@@ -11,11 +11,9 @@ import threading
 
 
 # Plota em tempo real a altitude do foguete
-def altimeterPloter(x,data):
+def altimeterPloter(data, x):
     
-    plt.plot(x,data)
-    plt.pause(0.05)
-
+    print(data)
 
 # Salva os dados em um arquivo externo, a cada leitura	
 def dataSafeGuard(receivedDataFloat):     
@@ -64,8 +62,7 @@ def main():
     expectedLenghtDataReceived = 2
     x = 0
 
-
-    plt.axis([0, 10, 0, 1])
+    threadCriticalControl = threading.Lock()
 
 
     print("\n Equipe ROCKET - Ground Basic Station Software V2.0")
@@ -90,16 +87,20 @@ def main():
     
             x = x + 1
 
-            safeguard = threading.Thread(target = dataSafeGuard, args = (receivedDataFloat,))
-            safeguard.start()
+            with threadCriticalControl:
 
-            altimeter = threading.Thread(target = altimeterPloter, args = (receivedDataFloat[0], x))
-            altimeter.start()
+                safeguard = threading.Thread(name = "kkkk", target = dataSafeGuard, args = (receivedDataFloat,))
+                safeguard.daemon = True
+                safeguard.start()
 
-            plt.show()
+            with threadCriticalControl:
 
+                altimeter = threading.Thread(name = "kkkk", target = altimeterPloter, args = (receivedDataFloat[0], x))
+                altimeter.daemon = True
+                altimeter.start()
             
-            
+
+
             
     except KeyboardInterrupt:
         
