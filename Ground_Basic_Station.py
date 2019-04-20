@@ -14,11 +14,19 @@ import threading
 
 
 # Plota em tempo real a altitude do foguete
-def altimeterPloter(data_altimeter):
+def altimeterPloter(data_altimeter:
+    altitude = []
 
-    print("\n Para Implementar!")
+    read_filename = "EquipeRocket-Ground_ReceivedData.txt"
+    file = open(read_filename, "r")
+    last_line = file.readlines()[-2]
+
+    file.close()
+
+
+
     
-    
+
 # Salva os dados em um arquivo externo, a cada leitura	
 def dataSafeGuard(receivedDataFloat):
         
@@ -29,9 +37,7 @@ def dataSafeGuard(receivedDataFloat):
     
             
     file = open(save_filename, "a+")
-    
-
-    file.writelines(str(receivedDataFloat).strip("[").strip("]") + "\r\n")
+    file.writelines(str(receivedDataFloat).strip("[").strip("]"))
         
     
     file.close()
@@ -75,7 +81,7 @@ def main():
     comport_usb = serialConnector()
 
     try:
-        while(KeyboardInterrupt):
+        while(True):
     			
             serial_received = comport_usb.readline().decode('latin-1').strip()
     		
@@ -100,11 +106,6 @@ def main():
                 altimeter = threading.Thread(name = "altimeter", target = altimeterPloter, args = (receivedDataFloat[0],))
                 altimeter.daemon = True
                 altimeter.start()
-
-
-
-            
-
 
             
     except KeyboardInterrupt:
