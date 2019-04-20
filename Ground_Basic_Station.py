@@ -14,16 +14,17 @@ import threading
 
 
 # Plota em tempo real a altitude do foguete
-def altimeterPloter(data_altimeter:
+def altimeterPloter(data_altimeter):
     altitude = []
 
     read_filename = "EquipeRocket-Ground_ReceivedData.txt"
     file = open(read_filename, "r")
-    last_line = file.readlines()[-2]
+    last_line = file.readlines()
 
     file.close()
 
 
+    print("\nAbriu!")
 
     
 
@@ -37,10 +38,12 @@ def dataSafeGuard(receivedDataFloat):
     
             
     file = open(save_filename, "a+")
-    file.writelines(str(receivedDataFloat).strip("[").strip("]"))
+    file.writelines(str(receivedDataFloat).strip("[").strip("]") + "\n")
         
     
     file.close()
+
+    print("\nGuardou!")
     
     
     
