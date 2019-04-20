@@ -7,30 +7,34 @@ Created on Fri Mar 29 20:58:17 2019
 """
 
 import serial as com
+import matplotlib
+matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import threading
+import queue
+
+print(matplotlib.get_backend())
+
+
+
+fig = plt.figure()
+fig.canvas.draw()
+plt.pause(0.001)
+plt.show(block=False)
 
 
 
 # Plota em tempo real a altitude do foguete
-def altimeterPloter(data_altimeter):
-    altitude = []
-
-    read_filename = "EquipeRocket-Ground_ReceivedData.txt"
-    file = open(read_filename, "r")
-    last_line = file.readlines()
-
-    file.close()
-
-
-    print("\nAbriu!")
+def altimeterPloter(value, alt):
+    
+    plt.plot(value,alt, 'r.')
 
     
 
 # Salva os dados em um arquivo externo, a cada leitura	
 def dataSafeGuard(receivedDataFloat):
-        
+    
     # Label : latitude   , Longitude  , Altitude , Date-Time, Velocidade, Direção    , Temperatura, Pressão  , Altitude2, Tempo de Execução
     # Format: Double-Grau, Double-Grau, Double-Cm, 2*uint32 , Double-m/s, Double-grau, Float-C    , Float-HPA, Float-M  , Unsigned Long-micro segundo
     
@@ -43,10 +47,24 @@ def dataSafeGuard(receivedDataFloat):
     
     file.close()
 
-    print("\nGuardou!")
+
+# Implementação de testes voltado para redução de gargalo
+def serialReading(comport_usb):
+
+
+    serial_received = comport_usb.readline().decode('latin-1').strip()
+    		
+    receivedRawData = list(serial_received.split(","))
+            
+            
+    if(len(receivedRawData) == 2):
+        print(receivedRawData)
+        receivedDataFloat = list(map(float, receivedRawData))
+
+        returnFromReading.put(receivedDataFloat)
     
-    
-    
+
+
 # Escuta a conexão serial, executado apenas uma vez
 def serialConnector():
 
@@ -63,7 +81,7 @@ def serialConnector():
 		print("\n Configurações de serial incorretas!")
 
 	except IOError:
-		print("\n Problemas com a porta serial, ou COM em uso!")
+		print("\n Problemas com a porta serial, COM em uso, ou desconectada!")
 		
 	return comport_usb
 	
@@ -72,9 +90,10 @@ def serialConnector():
 def main():
 
     receivedDataFloat = []
-    expectedLenghtDataReceived = 2
+    #expectedLenghtDataReceived = 2
+    valueTest = 0
 
-    threadCriticalControl = threading.Lock()
+    #threadCriticalControl = threading.Lock()
 
 
     print("\n Equipe ROCKET - Ground Basic Station Software V2.0")
@@ -86,33 +105,30 @@ def main():
     try:
         while(True):
     			
-            serial_received = comport_usb.readline().decode('latin-1').strip()
-    		
-            receivedRawData = list(serial_received.split(","))
             
-            
-            if(len(receivedRawData) != expectedLenghtDataReceived):
-                continue
-            else:
-                print(receivedRawData)
-                receivedDataFloat = list(map(float, receivedRawData))
-    
+            reading = threading.Thread(name = "serialreader", target = serialReading, args = (comport_usb,))
+            reading.daemon = True
+            reading.start()
 
-            with threadCriticalControl:
+            receivedDataFloat = returnFromReading.get()
 
-                safeguard = threading.Thread(name = "safeguard", target = dataSafeGuard, args = (receivedDataFloat,))
-                safeguard.daemon = True
-                safeguard.start()
 
-            with threadCriticalControl:
-
-                altimeter = threading.Thread(name = "altimeter", target = altimeterPloter, args = (receivedDataFloat[0],))
-                altimeter.daemon = True
-                altimeter.start()
+            safeguard = threading.Thread(name = "safeguard", target = dataSafeGuard, args = (receivedDataFloat,))
+            safeguard.daemon = True
+            safeguard.start()
 
             
+            altimeter = threading.Thread(name = "altimeter", target = altimeterPloter, args = (valueTest, receivedDataFloat[0]))
+            altimeter.daemon = True
+            altimeter.start()
+
+            valueTest = valueTest + 1
+
+            fig.canvas.draw()
+            plt.pause(0.0001)
+
+
     except KeyboardInterrupt:
-        
         comport_usb.close()
         exit()	
 		
