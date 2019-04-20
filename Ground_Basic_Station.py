@@ -2,21 +2,25 @@
 """
 Created on Fri Mar 29 20:58:17 2019
 
-@author: Douglas Violante 
+@author: Douglas Violante
+@author: Samuel Santos 
 """
 
 import serial as com
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 import threading
 
 
-# Plota em tempo real a altitude do foguete
-def altimeterPloter(data, x):
-    
-    print(data)
 
+# Plota em tempo real a altitude do foguete
+def altimeterPloter(data_altimeter):
+
+    print("\n Para Implementar!")
+    
+    
 # Salva os dados em um arquivo externo, a cada leitura	
-def dataSafeGuard(receivedDataFloat):     
+def dataSafeGuard(receivedDataFloat):
         
     # Label : latitude   , Longitude  , Altitude , Date-Time, Velocidade, Direção    , Temperatura, Pressão  , Altitude2, Tempo de Execução
     # Format: Double-Grau, Double-Grau, Double-Cm, 2*uint32 , Double-m/s, Double-grau, Float-C    , Float-HPA, Float-M  , Unsigned Long-micro segundo
@@ -60,7 +64,6 @@ def main():
 
     receivedDataFloat = []
     expectedLenghtDataReceived = 2
-    x = 0
 
     threadCriticalControl = threading.Lock()
 
@@ -85,19 +88,21 @@ def main():
                 print(receivedRawData)
                 receivedDataFloat = list(map(float, receivedRawData))
     
-            x = x + 1
 
             with threadCriticalControl:
 
-                safeguard = threading.Thread(name = "kkkk", target = dataSafeGuard, args = (receivedDataFloat,))
+                safeguard = threading.Thread(name = "safeguard", target = dataSafeGuard, args = (receivedDataFloat,))
                 safeguard.daemon = True
                 safeguard.start()
 
             with threadCriticalControl:
 
-                altimeter = threading.Thread(name = "kkkk", target = altimeterPloter, args = (receivedDataFloat[0], x))
+                altimeter = threading.Thread(name = "altimeter", target = altimeterPloter, args = (receivedDataFloat[0],))
                 altimeter.daemon = True
                 altimeter.start()
+
+
+
             
 
 
