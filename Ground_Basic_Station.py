@@ -17,7 +17,6 @@ import queue
 print(matplotlib.get_backend())
 
 
-
 fig = plt.figure()
 fig.canvas.draw()
 plt.pause(0.001)
@@ -37,32 +36,14 @@ def dataSafeGuard(receivedDataFloat):
     
     # Label : latitude   , Longitude  , Altitude , Date-Time, Velocidade, Direção    , Temperatura, Pressão  , Altitude2, Tempo de Execução
     # Format: Double-Grau, Double-Grau, Double-Cm, 2*uint32 , Double-m/s, Double-grau, Float-C    , Float-HPA, Float-M  , Unsigned Long-micro segundo
-    
-    save_filename = "EquipeRocket-Ground_ReceivedData.txt"
-    
+        
             
-    file = open(save_filename, "a+")
+    file = open("EquipeRocket-Ground_ReceivedData.txt", "a+")
     file.writelines(str(receivedDataFloat).strip("[").strip("]") + "\n")
         
     
     file.close()
 
-
-# Implementação de testes voltado para redução de gargalo
-def serialReading(comport_usb):
-
-
-    serial_received = comport_usb.readline().decode('latin-1').strip()
-    		
-    receivedRawData = list(serial_received.split(","))
-            
-            
-    if(len(receivedRawData) == 2):
-        print(receivedRawData)
-        receivedDataFloat = list(map(float, receivedRawData))
-
-        returnFromReading.put(receivedDataFloat)
-    
 
 
 # Escuta a conexão serial, executado apenas uma vez
@@ -70,11 +51,11 @@ def serialConnector():
 
 	try: 
 		comport_usb = com.Serial(port = 'COM4',
-								baudrate = 115200,
-								timeout = 1,
-								bytesize = 8,
-								stopbits = 1,
-								parity = 'N')
+							baudrate = 115200,
+							timeout = 0.5,
+							bytesize = 8,
+							stopbits = 1,
+							parity = 'N')
 			
 
 	except ValueError:
@@ -90,10 +71,11 @@ def serialConnector():
 def main():
 
     receivedDataFloat = []
-    #expectedLenghtDataReceived = 2
+    expectedLenghtDataReceived = 2
     valueTest = 0
+    
 
-    #threadCriticalControl = threading.Lock()
+    threadCriticalControl = threading.Lock()
 
 
     print("\n Equipe ROCKET - Ground Basic Station Software V2.0")
@@ -104,28 +86,43 @@ def main():
 
     try:
         while(True):
-    			
+
+                
+
+                serial_received = comport_usb.readline().decode().strip()
+                receivedRawData = list(serial_received.split(","))
+                comport_usb.reset_input_buffer()
             
-            reading = threading.Thread(name = "serialreader", target = serialReading, args = (comport_usb,))
-            reading.daemon = True
-            reading.start()
-
-            receivedDataFloat = returnFromReading.get()
-
-
-            safeguard = threading.Thread(name = "safeguard", target = dataSafeGuard, args = (receivedDataFloat,))
-            safeguard.daemon = True
-            safeguard.start()
+            
+                if(len(receivedRawData) != expectedLenghtDataReceived):
+                        continue
+                else:
+                        receivedDataFloat = list(map(float, receivedRawData))
+                        print(receivedDataFloat)
 
             
-            altimeter = threading.Thread(name = "altimeter", target = altimeterPloter, args = (valueTest, receivedDataFloat[0]))
-            altimeter.daemon = True
-            altimeter.start()
+                with threadCriticalControl:
+                        safeguard = threading.Thread(name = "safeguard", target = dataSafeGuard, args = (receivedDataFloat,))
+                        
+                        
+                        if (safeguard.isAlive() != True):
+                                safeguard.daemon = True
+                                safeguard.start()
 
-            valueTest = valueTest + 1
+                        
 
-            fig.canvas.draw()
-            plt.pause(0.0001)
+                with threadCriticalControl:
+                        altimeter = threading.Thread(name = "altimeter", target = altimeterPloter, args = (valueTest, receivedDataFloat[0]))
+                        
+                
+                        if (altimeter.isAlive() != True):
+                                altimeter.daemon = True
+                                altimeter.start()
+
+                        valueTest = valueTest + 1
+
+                        fig.canvas.draw()
+                        plt.pause(0.0001)
 
 
     except KeyboardInterrupt:
