@@ -10,34 +10,38 @@ import serial as com
 import matplotlib
 matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 import threading
-import queue
-
-print(matplotlib.get_backend())
 
 
-fig = plt.figure()
-fig.canvas.draw()
-plt.pause(0.001)
-plt.show(block=False)
+def plotInitializer():
+
+        print(matplotlib.get_backend())
+
+        figure = plt.figure()
+        figure.canvas.draw()
+
+        plt.title("Equipe Rocket - Altimetro")
+        plt.xlabel("Time - seconds")
+        plt.ylabel("Altitude - meters")
+        plt.ylim(0, 1200)
+        plt.pause(0.001)
+        plt.show(block = False)
+
+        return figure
 
 
 
-# Plota em tempo real a altitude do foguete
 def altimeterPloter(value, alt):
     
-    plt.plot(value,alt, 'r.')
+    plt.plot(value,alt, 'b.')
 
     
 
-# Salva os dados em um arquivo externo, a cada leitura	
 def dataSafeGuard(receivedDataFloat):
     
     # Label : latitude   , Longitude  , Altitude , Date-Time, Velocidade, Direção    , Temperatura, Pressão  , Altitude2, Tempo de Execução
     # Format: Double-Grau, Double-Grau, Double-Cm, 2*uint32 , Double-m/s, Double-grau, Float-C    , Float-HPA, Float-M  , Unsigned Long-micro segundo
-        
-            
+    
     file = open("EquipeRocket-Ground_ReceivedData.txt", "a+")
     file.writelines(str(receivedDataFloat).strip("[").strip("]") + "\n")
         
@@ -45,8 +49,6 @@ def dataSafeGuard(receivedDataFloat):
     file.close()
 
 
-
-# Escuta a conexão serial, executado apenas uma vez
 def serialConnector():
 
 	try: 
@@ -65,8 +67,7 @@ def serialConnector():
 		print("\n Problemas com a porta serial, COM em uso, ou desconectada!")
 		
 	return comport_usb
-	
-# -----------------------------------------------------------------------------
+
 
 def main():
 
@@ -74,15 +75,15 @@ def main():
     expectedLenghtDataReceived = 2
     valueTest = 0
     
+    figure = plotInitializer()
+    comport_usb = serialConnector()
 
     threadCriticalControl = threading.Lock()
-
+    
 
     print("\n Equipe ROCKET - Ground Basic Station Software V2.0")
     input("\n ----------- Pressione Enter para iniciar ----------- \n")
     input("\n Tem certeza?")
-
-    comport_usb = serialConnector()
 
     try:
         while(True):
@@ -121,7 +122,7 @@ def main():
 
                         valueTest = valueTest + 1
 
-                        fig.canvas.draw()
+                        figure.canvas.draw()
                         plt.pause(0.0001)
 
 
