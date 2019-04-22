@@ -30,7 +30,7 @@ Sistema de solo básico para recepção e armazenamento de dados de lançamento.
 - Ao inicio da plotagem do primeiro ponto real, uma execption pode ser gerada, reinicie a execução
 - Ao executar a aplicação uma exception pode ser gerada, reinicie a execução
 
-## __Como finalizar a execução?:
+## __Como finalizar a execução?__:
 
 - Pressione as teclas __CTRL + C__
 
