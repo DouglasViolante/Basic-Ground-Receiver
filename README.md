@@ -29,6 +29,7 @@ Sistema de solo básico para recepção e armazenamento de dados de lançamento.
 
 - Ao inicio da plotagem do primeiro ponto real, uma execption pode ser gerada, reinicie a execução
 - Ao executar a aplicação uma exception pode ser gerada, reinicie a execução
+- No meio da execução da aplicação um erro gerado por lixo do arduino pode ser gerado
 
 ## __Como finalizar a execução?__:
 
