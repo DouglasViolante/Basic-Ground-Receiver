@@ -21,7 +21,7 @@ Sistema de solo básico para recepção e armazenamento de dados de lançamento.
 
 - Executar a aplicação utilizando-se do Visual Studio Code, e preferencialmente com a base do Anaconda Navigator.
 
-## __Onde o arquivo é salvo?__
+## __Onde e como o arquivo é salvo?__
 
 - O arquivo é salvo com o nome de __"EquipeRocket-Ground_ReceivedData.txt"__, na mesma pasta do arquivo da aplicação
 
