@@ -101,8 +101,7 @@ def main():
                                 print(receivedDataFloat)
                                 receivedDataFloat = list(map(float, receivedRawData))
                 except:
-                        for i in range(0,100):
-                                print("\n Recepção Inválida, Ignorando!")
+                        print("\n Recepção Inválida, Ignorando!")
                         continue
 
             
