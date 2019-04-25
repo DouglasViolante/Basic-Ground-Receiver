@@ -33,7 +33,7 @@ def plotInitializer():
 
 def altimeterPloter(value, alt):
     
-    plt.plot(value,alt, 'b.')
+    plt.plot(value,alt, 'b|')
 
     
 
@@ -94,12 +94,16 @@ def main():
                 receivedRawData = list(serial_received.split(","))
                 comport_usb.reset_input_buffer()
             
-            
-                if(len(receivedRawData) != expectedLenghtDataReceived):
+                try:
+                        if(len(receivedRawData) != expectedLenghtDataReceived):
+                                continue
+                        else:
+                                print(receivedDataFloat)
+                                receivedDataFloat = list(map(float, receivedRawData))
+                except:
+                        for i in range(0,100):
+                                print("\n Recepção Inválida, Ignorando!")
                         continue
-                else:
-                        receivedDataFloat = list(map(float, receivedRawData))
-                        print(receivedDataFloat)
 
             
                 with threadCriticalControl:
@@ -123,7 +127,7 @@ def main():
                         valueTest = valueTest + 1
 
                         figure.canvas.draw()
-                        plt.pause(0.0001)
+                        plt.pause(0.000001)
 
 
     except KeyboardInterrupt:
