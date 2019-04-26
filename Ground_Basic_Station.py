@@ -8,7 +8,6 @@ Created on Fri Mar 29 20:58:17 2019
 
 import serial as com
 import matplotlib
-matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 import threading
 
@@ -31,9 +30,9 @@ def plotInitializer():
 
 
 
-def altimeterPloter(value, alt):
+def altimeterPloter(time, alt):
     
-    plt.plot(value,alt, 'b|')
+    plt.plot(time,alt, 'b|')
 
     
 
@@ -73,7 +72,6 @@ def main():
 
     receivedDataFloat = []
     expectedLenghtDataReceived = 2
-    valueTest = 0
     
     figure = plotInitializer()
     comport_usb = serialConnector()
@@ -116,14 +114,13 @@ def main():
                         
 
                 with threadCriticalControl:
-                        altimeter = threading.Thread(name = "altimeter", target = altimeterPloter, args = (valueTest, receivedDataFloat[0]))
+                        altimeter = threading.Thread(name = "altimeter", target = altimeterPloter, args = (receivedDataFloat[1], receivedDataFloat[0]))
                         
                 
                         if (altimeter.isAlive() != True):
                                 altimeter.daemon = True
                                 altimeter.start()
 
-                        valueTest = valueTest + 1
 
                         figure.canvas.draw()
                         plt.pause(0.000001)
