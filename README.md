@@ -1,4 +1,4 @@
-# Ground Basic Station
+# Basic Ground Receiver
 Sistema de solo básico para recepção e armazenamento de dados de lançamento.
 
 ## __Bibliotecas Utilizadas__
