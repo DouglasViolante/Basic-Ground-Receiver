@@ -3,7 +3,6 @@
 Created on Fri Mar 29 20:58:17 2019
 
 @author: Douglas Violante
-@author: Samuel Santos 
 """
 
 import serial as com
@@ -79,7 +78,7 @@ def main():
     threadCriticalControl = threading.Lock()
     
 
-    print("\n Equipe ROCKET - Ground Basic Station Software V2.0")
+    print("\n Equipe ROCKET - Basic Ground Receiver Software V2.0")
     input("\n ----------- Pressione Enter para iniciar ----------- \n")
     input("\n Tem certeza?")
 
